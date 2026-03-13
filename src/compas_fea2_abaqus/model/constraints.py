@@ -57,13 +57,12 @@ class AbaqusTieConstraint(TieConstraint):
         self.adjust = adjust
         self.position_tolerance = position_tolerance
 
-    @property
     @no_units
     def jobdata(self, master, slave):
         return "\n".join(
             [
                 "** Constraint: {} Type: Tie".format(self.name),
                 f"*Tie, name={self.name}, adjust={self.adjust}, position tolerance={self.position_tolerance}",
-                f"{master.name}, {slave.name}",
+                f"{master.name}_i, {slave.name}_i",
             ]
         )

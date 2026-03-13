@@ -36,14 +36,17 @@ class AbaqusPartPartInterface(PartPartInterface):
     @property
     @no_units
     def jobdata(self):
+        from compas_fea2.model.constraints import TieConstraint
         if isinstance(self.behavior, Contact):
             return f"""** Interface: {self._name}
 *Contact Pair, interaction={self._behavior.name}, type=SURFACE TO SURFACE{self._no_tickness}{self._small_sliding}{self._adjust}
 {self._master.name}_i, {self._slave.name}_i
 **"""
-
+        elif isinstance(self.behavior, TieConstraint):
+            return self.behavior.jobdata(master=self.master, slave=self.slave)
         elif isinstance(self.behavior, _Constraint):
             return f"{self.behavior.jobdata}, {self.master.name}, {self.slave.name}\n**"
+        
 
 
 #     @property
