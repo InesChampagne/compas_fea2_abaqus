@@ -238,9 +238,10 @@ class AbaqusProblem(Problem):
                     [
                         abaq_comp + "/" + compas_comp
                         for compas_comp, abaq_comp in field.compas_to_abaqus_component_names.items()  # abaqus_component/compas_component
-                    ])
+                    ]
+                )
                 + "-"
-                + ",".join(field.abaqus_invariant_names if hasattr(field, 'abaqus_invariant_names') else [])
+                + ",".join(field.abaqus_invariant_names if hasattr(field, "abaqus_invariant_names") else [])
                 for field in fields
             ]
         )

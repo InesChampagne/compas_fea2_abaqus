@@ -241,7 +241,9 @@ def extract_odb_data(database_path, database_name, field):
                 field_component.split("/")[0]: field_component.split("/")[1]
                 for field_component in field_component_data.split(",")
             }
-            field_invariants[field_name_data.split("/")[0]] = field_data.split("-")[2].split(",") if not field_data.split("-")[2].split(",")==[''] else []
+            field_invariants[field_name_data.split("/")[0]] = (
+                field_data.split("-")[2].split(",") if not field_data.split("-")[2].split(",") == [""] else []
+            )
 
     # open the odb file
     odb = odbAccess.openOdb(os.path.join(database_path, "{}.odb".format(database_name)))
@@ -280,9 +282,9 @@ def extract_odb_data(database_path, database_name, field):
                 component_data_dict = {}
                 invariants_data = {}
                 for abaqus_field in abaqus_fields_names:
-                    try :
+                    try:
                         field_data = default_fields[abaqus_field]
-                    except :
+                    except:
                         continue
                     abaqus_components_names = list(field_data.componentLabels)
                     field_data_values = field_data.values
@@ -298,7 +300,7 @@ def extract_odb_data(database_path, database_name, field):
                         position = value.position.name
                         part = value.instance.name[:-2]
 
-                        #component values
+                        # component values
                         if part not in component_data_dict.keys():
                             component_data_dict[part] = {}
                         if key not in component_data_dict[part].keys():
@@ -312,7 +314,7 @@ def extract_odb_data(database_path, database_name, field):
                             component_value = value.data[i]
                             component_data_dict[part][key][compas_component_name] = component_value
 
-                        #invariant values
+                        # invariant values
                         if part not in invariants_data.keys():
                             invariants_data[part] = {}
                         if key not in invariants_data[part].keys():
@@ -322,7 +324,6 @@ def extract_odb_data(database_path, database_name, field):
                         for i in range(len(field_invariants[compas_field_name])):
                             invariant_value = getattr(value, field_invariants[compas_field_name][i])
                             invariants_data[part][key][field_invariants[compas_field_name][i]] = invariant_value
-
 
                 # results are inserted in the sql table
                 for part, key_data in component_data_dict.items():
@@ -334,7 +335,10 @@ def extract_odb_data(database_path, database_name, field):
                                 component_data_dict[part][key][component]
                                 for component in field_component_abaq_comp[compas_field_name].values()
                             ],
-                            [invariants_data[part][key][invariants_name] for invariants_name in field_invariants[compas_field_name]],
+                            [
+                                invariants_data[part][key][invariants_name]
+                                for invariants_name in field_invariants[compas_field_name]
+                            ],
                             step_name,
                             part,
                             component_data["key_type"],

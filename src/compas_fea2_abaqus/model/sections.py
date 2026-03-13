@@ -122,7 +122,7 @@ class AbaqusConnectorSection(ConnectorSection):
 
     def __init__(
         self,
-        nonlinear = False,
+        nonlinear=False,
         axial: float = None,
         lateral: float = None,
         rotational: float = None,
@@ -140,7 +140,7 @@ class AbaqusConnectorSection(ConnectorSection):
             for axial_data in self.axial:
                 data += [f"{axial_data[0]}, {axial_data[1]}"]
 
-        else :
+        else:
             data = [f"*Connector Behavior, name={self.name}"]
             data += ["*Connector Elasticity, component=1"]
             data += [f"{self.axial},"]

@@ -35,7 +35,7 @@ def jobdata(self, instance, assembly=False):
                 data_section.append(", ".join(chunk))
     elif assembly:
         data_section.append(line)
-        data = [str(member.part.name)+str(-1.)+str(member.key) for member in self._members]
+        data = [str(member.part.name) + str(-1.0) + str(member.key) for member in self._members]
         chunks = [data[x : x + 15] for x in range(0, len(data), 15)]  # split data for readibility
         for chunk in chunks:
             data_section.append(", ".join(chunk))
@@ -63,7 +63,7 @@ class AbaqusNodesGroup(NodesGroup):
 
     def __init__(self, members, surface=False, **kwargs):
         super(AbaqusNodesGroup, self).__init__(members=members, **kwargs)
-        self._surface=surface
+        self._surface = surface
         self._set_type = "nset"
 
     @no_units
@@ -74,7 +74,7 @@ class AbaqusNodesGroup(NodesGroup):
                 lines.append("{}-1.{}, {}".format(node.part.name, node.key, node.key))
             lines.append("**")
             return "\n".join(lines)
-        else :
+        else:
             return jobdata(self, instance, **kwargs)
 
 
@@ -166,6 +166,7 @@ class AbaqusFacesGroup(FacesGroup):
         lines.append("**")
         return "\n".join(lines)
 
+
 class AbaqusMaterialsGroup(MaterialsGroup):
     """Calculix implementation of :class:`MaterialsGroup`
 
@@ -184,4 +185,4 @@ class AbaqusMaterialsGroup(MaterialsGroup):
     @property
     @no_units
     def jobdata(self):
-        return '\n'.join([material.jobdata for material in self.members])
+        return "\n".join([material.jobdata for material in self.members])

@@ -146,29 +146,38 @@ class AbaqusGravityLoadField(GravityLoadField):
             f", GRAV, {self.g}, {self.direction[0]}, {self.direction[1]}, {self.direction[2]}"
         )
 
-class AbaqusDisplacementField(DisplacementField):
 
-    def __init__(self, displacements, distribution, modify=False, follow=False, load_case=None, combination_rank = 1, **kwargs):
+class AbaqusDisplacementField(DisplacementField):
+    def __init__(
+        self,
+        displacements,
+        distribution,
+        modify=False,
+        follow=False,
+        load_case=None,
+        combination_rank=1,
+        **kwargs,
+    ):
         super().__init__(displacements, distribution, load_case, combination_rank, **kwargs)
         self._modify = ", OP={}".format(modify) if modify else ", OP=MOD"  # In abaqus the default is MOD
         self._follow = ", follower" if follow else ""
-    
+
     @property
     def jobdata(self):
-        #Boundary conditions is updated to remove BC on nodes with imposed displacement
+        # Boundary conditions is updated to remove BC on nodes with imposed displacement
         data_section = [
             "** Name: {} Type: Boundary Condition".format(self.name),
             "*Boundary{}{}".format(self._modify, self._follow),
         ]
 
         for bc, nodes in self.model.bcs_nodes.items():
-            for node in nodes :
+            for node in nodes:
                 for comp, dof in enumerate(dofs, 1):
                     if getattr(bc, dof) and node not in self.distribution:
                         data_section.append(f"{node.part.name}-1.{node.key}, {comp}")
         data_section.append(f"** Name: {self.name} Type:  Displacement/Rotation".format())
         data_section.append("*Boundary, OP=MOD")
-        
+
         for node, displacement in self.node_displacement:
             for comp, dof in enumerate(dofs, 1):
                 if getattr(displacement, dof):

@@ -102,7 +102,11 @@ class AbaqusStaticStep(StaticStep):
 **   ---------------
 {
             "\n".join(
-                ["*Restart, write, frequency=0", "**", f"*Output, field, frequency={self.output_frequency}"]
+                [
+                    "*Restart, write, frequency=0",
+                    "**",
+                    f"*Output, field, frequency={self.output_frequency}",
+                ]
                 + [
                     output.jobdata
                     for output in self._field_outputs
