@@ -28,13 +28,14 @@ class AbaqusStaticStep(StaticStep):
         self,
         max_increments=1000,
         initial_inc_size=1,
-        min_inc_size=0.00001,
+        min_inc_size=0.001,
         max_inc_size=1,
         time=1,
         nlgeom=False,
         modify=True,
         restart=False,
         name=None,
+        output_frequency=99999,
         **kwargs,
     ):
         super().__init__(
@@ -50,6 +51,7 @@ class AbaqusStaticStep(StaticStep):
         )
         self._stype = "Static"
         self._restart = restart
+        self.output_frequency = output_frequency
 
     @property
     @no_units
@@ -100,7 +102,7 @@ class AbaqusStaticStep(StaticStep):
 **   ---------------
 {
             "\n".join(
-                ["*Restart, write, frequency=0", "**", "*Output, field"]
+                ["*Restart, write, frequency=0", "**", f"*Output, field, frequency={self.output_frequency}"]
                 + [
                     output.jobdata
                     for output in self._field_outputs
