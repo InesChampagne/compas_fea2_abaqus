@@ -122,20 +122,28 @@ class AbaqusConnectorSection(ConnectorSection):
 
     def __init__(
         self,
+        nonlinear = False,
         axial: float = None,
         lateral: float = None,
         rotational: float = None,
         **kwargs,
     ):
         super(AbaqusConnectorSection, self).__init__(axial=axial, lateral=lateral, rotational=rotational, **kwargs)
+        self.nonlinear = nonlinear
 
-    @property
     @no_units
     def jobdata(self):
         # FIXME: this is a placeholder only working for axial connectors
-        data = [f"*Connector Behavior, name={self.name}"]
-        data += ["*Connector Elasticity, component=1"]
-        data += [f"{self.axial},"]
+        if self.nonlinear:
+            data = [f"*Connector Behavior, name={self.name}"]
+            data += ["*Connector Elasticity, nonlinear, component=1"]
+            for axial_data in self.axial:
+                data += [f"{axial_data[0]}, {axial_data[1]}"]
+
+        else :
+            data = [f"*Connector Behavior, name={self.name}"]
+            data += ["*Connector Elasticity, component=1"]
+            data += [f"{self.axial},"]
         return "\n".join(data)
 
 
@@ -238,7 +246,7 @@ class AbaqusCircularSection(CircularSection):
 
     """
 
-    @units_io(types_in=("length"), types_out=None)
+    @units_io(types_in=("length", None, None), types_out=None)
     def __init__(self, r, material, name=None, **kwargs):
         super(AbaqusCircularSection, self).__init__(r, material, name=name, **kwargs)
         self._properties = [r]
