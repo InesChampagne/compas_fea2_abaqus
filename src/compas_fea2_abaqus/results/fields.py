@@ -11,7 +11,7 @@ from compas_fea2.units import no_units
 class AbaqusDisplacementFieldResults(DisplacementFieldResults):
     """Abaqus implementation of :class:`DisplacementFieldResults`.\n"""
 
-    abaqus_field_names = ["U", "UR"]
+    abaqus_field_names = ["U"]
     compas_to_abaqus_component_names = {
         "x": "U1",
         "y": "U2",
@@ -97,6 +97,8 @@ class AbaqusSectionForcesFieldResults(SectionForcesFieldResults):
 
 class AbaqusStressFieldResults(StressFieldResults):
     """Abaqus implementation of :class:`StressFieldResults`.\n"""
+
+    abaqus_invariant_names = ["minPrincipal", "maxPrincipal"]
 
     abaqus_field_names = ["S"]
     compas_to_abaqus_component_names = {

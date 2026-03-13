@@ -231,6 +231,7 @@ def extract_odb_data(database_path, database_name, field):
     # create from the field argument, the correspondence table between abaqus results fields and requested compas results fields
     field_name_comp_abaq = {}
     field_component_abaq_comp = {}
+    field_invariants = {}
     if field:
         for field_data in field.split("."):
             field_name_data = field_data.split("-")[0]
@@ -240,6 +241,7 @@ def extract_odb_data(database_path, database_name, field):
                 field_component.split("/")[0]: field_component.split("/")[1]
                 for field_component in field_component_data.split(",")
             }
+            field_invariants[field_name_data.split("/")[0]] = field_data.split("-")[2].split(",") if not field_data.split("-")[2].split(",")==[''] else []
 
     # open the odb file
     odb = odbAccess.openOdb(os.path.join(database_path, "{}.odb".format(database_name)))
@@ -256,7 +258,7 @@ def extract_odb_data(database_path, database_name, field):
 
             # loop through all the requested compas field
             for compas_field_name, abaqus_fields_names in field_name_comp_abaq.items():
-                invariants_names = []  # invariants are, for now, not integrated in the table
+                # invariants_names = invariants  # invariants are, for now, not integrated in the table
 
                 # initialization of sql table of compas field
                 insert_field_description(
@@ -264,20 +266,24 @@ def extract_odb_data(database_path, database_name, field):
                     compas_field_name,
                     "",
                     " ".join(field_component_abaq_comp[compas_field_name].values()),
-                    " ".join(invariants_names),
+                    " ".join(field_invariants[compas_field_name]),
                 )
                 create_field_table(
                     conn,
                     compas_field_name,
                     list(field_component_abaq_comp[compas_field_name].values()),
-                    invariants_names,
+                    field_invariants[compas_field_name],
                 )
 
                 # the data from the different abaqus fields composing the compas field
                 # are assembled in a dictionnary
                 component_data_dict = {}
+                invariants_data = {}
                 for abaqus_field in abaqus_fields_names:
-                    field_data = default_fields[abaqus_field]
+                    try :
+                        field_data = default_fields[abaqus_field]
+                    except :
+                        continue
                     abaqus_components_names = list(field_data.componentLabels)
                     field_data_values = field_data.values
                     for value in field_data_values:
@@ -291,6 +297,8 @@ def extract_odb_data(database_path, database_name, field):
                             raise AttributeError()
                         position = value.position.name
                         part = value.instance.name[:-2]
+
+                        #component values
                         if part not in component_data_dict.keys():
                             component_data_dict[part] = {}
                         if key not in component_data_dict[part].keys():
@@ -304,6 +312,18 @@ def extract_odb_data(database_path, database_name, field):
                             component_value = value.data[i]
                             component_data_dict[part][key][compas_component_name] = component_value
 
+                        #invariant values
+                        if part not in invariants_data.keys():
+                            invariants_data[part] = {}
+                        if key not in invariants_data[part].keys():
+                            invariants_data[part][key] = {
+                                component: 0 for component in field_invariants[compas_field_name]
+                            }
+                        for i in range(len(field_invariants[compas_field_name])):
+                            invariant_value = getattr(value, field_invariants[compas_field_name][i])
+                            invariants_data[part][key][field_invariants[compas_field_name][i]] = invariant_value
+
+
                 # results are inserted in the sql table
                 for part, key_data in component_data_dict.items():
                     for key, component_data in key_data.items():
@@ -314,7 +334,7 @@ def extract_odb_data(database_path, database_name, field):
                                 component_data_dict[part][key][component]
                                 for component in field_component_abaq_comp[compas_field_name].values()
                             ],
-                            [],
+                            [invariants_data[part][key][invariants_name] for invariants_name in field_invariants[compas_field_name]],
                             step_name,
                             part,
                             component_data["key_type"],
