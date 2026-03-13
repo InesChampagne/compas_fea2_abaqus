@@ -17,8 +17,8 @@ class AbaqusProblem(Problem):
     __doc__ = __doc__ or ""
     __doc__ += Problem.__doc__ or ""
 
-    def __init__(self, name=None, description=None, **kwargs):
-        super(AbaqusProblem, self).__init__(name=name, description=description, **kwargs)
+    def __init__(self, description=None, **kwargs):
+        super(AbaqusProblem, self).__init__(description=description, **kwargs)
 
     # =========================================================================
     #                         Analysis methods
