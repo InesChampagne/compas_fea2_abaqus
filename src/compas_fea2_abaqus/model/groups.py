@@ -61,13 +61,21 @@ class AbaqusNodesGroup(NodesGroup):
     __doc__ = __doc__ or ""
     __doc__ += NodesGroup.__doc__ or ""
 
-    def __init__(self, members, **kwargs):
+    def __init__(self, members, surface=False, **kwargs):
         super(AbaqusNodesGroup, self).__init__(members=members, **kwargs)
+        self._surface=surface
         self._set_type = "nset"
 
     @no_units
     def jobdata(self, instance=None, **kwargs):
-        return jobdata(self, instance, **kwargs)
+        if self._surface:
+            lines = ["*Surface, type=NODE, name={}_i".format(self._name)]
+            for node in self.nodes:
+                lines.append("{}-1.{}, {}".format(node.part.name, node.key, node.key))
+            lines.append("**")
+            return "\n".join(lines)
+        else :
+            return jobdata(self, instance, **kwargs)
 
 
 class AbaqusElementsGroup(ElementsGroup):
@@ -139,9 +147,8 @@ class AbaqusFacesGroup(FacesGroup):
     def __init__(self, members, **kwargs):
         super(AbaqusFacesGroup, self).__init__(members=members, **kwargs)
 
-    @property
     @no_units
-    def jobdata(self):
+    def jobdata(self, **kwargs):
         """Generates the string information for the input file.
 
         Parameters

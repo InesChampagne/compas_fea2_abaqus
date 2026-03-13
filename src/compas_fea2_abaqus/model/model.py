@@ -146,7 +146,7 @@ class AbaqusModel(Model):
             if isinstance(interface, PartPartInterface):
                 interface_groups.add(interface.slave)
         for interface_group in interface_groups:
-            data_section.append(interface_group.jobdata)
+            data_section.append(interface_group.jobdata(assembly=True))
         data_section.append("**\n** CONSTRAINTS\n**")
         for interface in filter(lambda i: isinstance(i.behavior, _Constraint), self.interfaces):
             data_section.append(interface.jobdata)
