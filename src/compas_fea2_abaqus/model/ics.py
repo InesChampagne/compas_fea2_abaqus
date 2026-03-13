@@ -10,8 +10,8 @@ class AbaqusInitialTemperature(InitialTemperature):
     __doc__ = __doc__ or ""
     __doc__ += InitialTemperature.__doc__ or ""
 
-    def __init__(self, temperature=None, step=None, inc=None, **kwargs):
-        super(AbaqusInitialTemperature, self).__init__(temperature, **kwargs)
+    def __init__(self, T0=None, step=None, inc=None, **kwargs):
+        super(AbaqusInitialTemperature, self).__init__(T0, **kwargs)
         self._ictype = "TEMPERATURE"
         if step:
             self._step = step
