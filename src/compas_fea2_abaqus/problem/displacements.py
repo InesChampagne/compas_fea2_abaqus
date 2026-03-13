@@ -20,7 +20,7 @@ class AbaqusGeneralDisplacement(GeneralDisplacement):
         add the displacement to the previous. By defult is ``True``.
     """
 
-    def __init__(self, x=None, y=None, z=None, xx=None, yy=None, zz=None, axes="global", **kwargs):
+    def __init__(self, x=False, y=False, z=False, xx=False, yy=False, zz=False, axes="global", **kwargs):
         super(AbaqusGeneralDisplacement, self).__init__(x=x, y=y, z=z, xx=xx, yy=yy, zz=zz, axes=axes, **kwargs)
 
     @no_units
