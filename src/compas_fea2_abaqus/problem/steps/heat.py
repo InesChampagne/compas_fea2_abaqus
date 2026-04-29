@@ -48,6 +48,7 @@ class AbaqusHeatTransferStep(HeatTransferStep):
         self._stype = "Heat Transfer"
         self._restart = restart
 
+    @property
     def jobdata(self):
         """Generates the string information for the input file.
 
@@ -122,8 +123,9 @@ class AbaqusHeatTransferStep(HeatTransferStep):
 
     def _generate_loads_section(self):
         data = []
-        for load_field in self.load_fields:
-            data.append(load_field.jobdata())
+        if self.loads:
+            for load_field in self.loads:
+                data.append(load_field.jobdata())
         return "\n".join(data) or "**"
 
     def _generate_thermalinterfaces_section(self):

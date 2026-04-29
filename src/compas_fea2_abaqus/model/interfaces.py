@@ -59,6 +59,7 @@ class AbaqusPartPartInterface(PartPartInterface):
 
 class AbaqusBoundaryInterface(BoundaryInterface):
     def __init__(
+        self,
         master,
         behavior,
         **kwargs,

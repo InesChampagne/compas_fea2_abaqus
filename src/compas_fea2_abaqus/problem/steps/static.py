@@ -72,7 +72,7 @@ class AbaqusStaticStep(StaticStep):
             self._max_increments
         }
 *{self._stype}
-{self._initial_inc_size}, {self._time}, {self._min_inc_size}, {self._time}
+{self._initial_inc_size}, {self._time}, {self._min_inc_size}, {self._max_inc_size}
 **
 ** - Imposed Displacements
 **   ---------------------

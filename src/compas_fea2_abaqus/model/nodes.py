@@ -1,6 +1,6 @@
 from compas_fea2.model import Node
 
-from compas_fea2.units import no_units
+from compas_fea2.units import no_units, units_io
 
 # =============================================================================
 # General
@@ -13,6 +13,7 @@ class AbaqusNode(Node):
     __doc__ = __doc__ or ""
     __doc__ += Node.__doc__
 
+    @units_io(types_in=(("length", "length", "length"), "mass", "temperature"), types_out=None)
     def __init__(self, xyz, mass=None, name=None, **kwargs):
         super(AbaqusNode, self).__init__(xyz=xyz, mass=mass, name=name, **kwargs)
 
