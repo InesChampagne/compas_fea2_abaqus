@@ -1,5 +1,6 @@
 from compas_fea2.model import Model, RigidPart
 from compas_fea2.model import ElementsGroup, NodesGroup
+from compas_fea2.model.groups import ConnectorsGroup
 from compas_fea2.model import _Constraint
 from compas_fea2.model.interactions import ThermalInteraction
 from compas_fea2.model.interfaces import PartPartInterface
@@ -139,6 +140,10 @@ class AbaqusModel(Model):
         data_section.append("**\n** CONNECTORS\n**")
         for connector in self.connectors:
             data_section.append(connector.jobdata)
+        for group in self.groups:
+            if isinstance(group, ConnectorsGroup):
+                data_section.append(group.jobdata())
+
         data_section.append("**\n** INTERFACES\n**")
         interface_groups = set()
         for interface in self.interfaces:
@@ -270,7 +275,7 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        return "\n".join([ic.jobdata() for ic in self.ics]) or "**"
+        return "\n".join([ic.jobdata for ic in self.ics]) or "**"
 
     @no_units
     def _generate_groups_section(self):

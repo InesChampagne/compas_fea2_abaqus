@@ -3,6 +3,7 @@ from compas_fea2.model import ElementsGroup
 from compas_fea2.model.groups import EdgesGroup
 from compas_fea2.model.groups import FacesGroup
 from compas_fea2.model.groups import MaterialsGroup
+from compas_fea2.model.groups import ConnectorsGroup
 from itertools import groupby
 
 from compas_fea2.units import no_units
@@ -113,7 +114,7 @@ class AbaqusEdgesGroup(EdgesGroup):
     def __init__(self, members, **kwargs):
         super().__init__(members=members, **kwargs)
 
-    def jobdata(self):
+    def jobdata(self, **kwargs):
         """Generates the string information for the input file.
 
         Parameters
@@ -186,3 +187,16 @@ class AbaqusMaterialsGroup(MaterialsGroup):
     @no_units
     def jobdata(self):
         return "\n".join([material.jobdata for material in self.members])
+
+class AbaqusConnectorsGroup(ConnectorsGroup):
+
+    def __init__(self, members, **kwargs):
+        super().__init__(members, **kwargs)
+        self._set_type = "elset"
+    
+    @no_units
+    def jobdata(self, **kwargs):
+        if len(self)>0:
+            return jobdata(self, instance=False)
+        else :
+            return "**"

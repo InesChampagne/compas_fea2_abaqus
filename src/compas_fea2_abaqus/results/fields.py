@@ -4,6 +4,8 @@ from compas_fea2.results.fields import SectionForcesFieldResults
 from compas_fea2.results.fields import StressFieldResults
 from compas_fea2.results.fields import ContactForcesFieldResults
 from compas_fea2.results.fields import TemperatureFieldResults
+from compas_fea2.results.fields import ConnectorForceFieldResults
+from compas_fea2.results.fields import ConnectorDisplacementFieldResults
 
 from compas_fea2.units import no_units
 
@@ -128,6 +130,10 @@ class AbaqusContactFieldResults(ContactForcesFieldResults):
     """Abaqus implementation of :class:`ContactForcesFieldResults`.\n"""
 
     abaqus_field_names = ["CNORMF", "CSHEARF"]
+
+    abaqus_invariant_names = ["magnitude"]
+
+
     compas_to_abaqus_component_names = {
         "Nx": "CNORMF1",
         "Ny": "CNORMF2",
@@ -152,8 +158,8 @@ class AbaqusContactFieldResults(ContactForcesFieldResults):
 
 
 class AbaqusTemperatureFieldResults(TemperatureFieldResults):
-    abaqus_field_names = ["NT"]
-    compas_to_abaqus_component_names = {"T": "NT"}
+    abaqus_field_names = ["NT11"]
+    compas_to_abaqus_component_names = {"T": "NT11"}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -162,3 +168,33 @@ class AbaqusTemperatureFieldResults(TemperatureFieldResults):
 
     def jobdata(self):
         return "*Node Output\nNT"
+
+class AbaqusConnectorForceResults(ConnectorForceFieldResults):
+    # abaqus_field_names = ["CTF"]
+    abaqus_field_names = []
+    compas_to_abaqus_component_names = {"cf1": "CF1", "cf2": "CF2", "cf3": "CF3", "cm1":"CM1", "cm2":"CM2", "cm3":"CM3"}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.input_name = "CTF"
+        self.output_type = "element"
+
+    @property
+    @no_units
+    def jobdata(self):
+        return "*Element Output, elset = ALL_CONNECTORS\nCTF"
+
+class AbaqusConnectorDisplacementResults(ConnectorDisplacementFieldResults):
+    # abaqus_field_names = ["CTF"]
+    abaqus_field_names = []
+    compas_to_abaqus_component_names = {"cf1": "CF1", "cf2": "CF2", "cf3": "CF3", "cm1":"CM1", "cm2":"CM2", "cm3":"CM3"}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.input_name = "CTF"
+        self.output_type = "element"
+
+    @property
+    @no_units
+    def jobdata(self):
+        return "*Element Output, elset = ALL_CONNECTORS\nCU"
