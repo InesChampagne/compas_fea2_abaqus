@@ -1,4 +1,4 @@
-from compas_fea2.model.fields import BoundaryConditionsField, BeamReleaseField
+from compas_fea2.model.fields import BoundaryConditionsField, BeamReleaseField, InitialTemperatureField
 from compas_fea2.units import no_units
 
 dofs = ["x", "y", "z", "xx", "yy", "zz"]
@@ -45,6 +45,46 @@ class AbaqusBoundaryConditionsField(BoundaryConditionsField):
                 if getattr(bc, dof):
                     data_section.append(f"{node.part.name}-1.{node.key}, {comp}")
         return "\n".join(data_section) or "**"
+
+class AbaqusInitialTemperatureField(InitialTemperatureField):
+    """Calculix implementation of :class:`BoundaryConditionsField`.
+
+    Notes
+    -----
+    This is equivalent to a boundary conditions field in Calculix.
+
+    """
+
+    __doc__ = (__doc__ or "") + (InitialTemperatureField.__doc__ or "")
+
+    def __init__(self,  nodes, condition, follow=False, modify=False, **kwargs):
+        super().__init__(nodes = nodes, condition=condition, **kwargs)
+        self._modify = ", OP={}".format(modify) if modify else ", OP=MOD"  # In abaqus the default is MOD
+        self._follow = ", follower" if follow else ""
+
+    @property
+    @no_units
+    def jobdata(self):
+        """Generates the string information for the input file.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        input file data line (str).
+
+        """
+
+        data_section = [
+            "** Name: {} Type: Temperature".format(self.name),
+            "*Initial Conditions, type=TEMPERATURE",
+        ]
+        for node, bc in self.node_condition:
+            data_section.append(f"{node.part.name}-1.{node.key}, {bc.T0}")
+        return "\n".join(data_section) or "**"
+
 
 
 class AbaqusBeamReleaseField(BeamReleaseField):
