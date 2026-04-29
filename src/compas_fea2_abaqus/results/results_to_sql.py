@@ -308,11 +308,16 @@ def extract_odb_data(database_path, database_name, field):
                                 component: 0 for component in field_component_abaq_comp[compas_field_name].values()
                             }
                         component_data_dict[part][key]["key_type"] = key_type
-                        for i in range(len(abaqus_components_names)):
-                            abaqus_component_name = abaqus_components_names[i]
-                            compas_component_name = field_component_abaq_comp[compas_field_name][abaqus_component_name]
-                            component_value = value.data[i]
-                            component_data_dict[part][key][compas_component_name] = component_value
+                        if len(abaqus_components_names)>0: # non scalar field
+                            for i in range(len(abaqus_components_names)):
+                                abaqus_component_name = abaqus_components_names[i]
+                                compas_component_name = field_component_abaq_comp[compas_field_name][abaqus_component_name]
+                                component_value = value.data[i]
+                                component_data_dict[part][key][compas_component_name] = component_value
+                        else : # scalar field
+                            compas_component_name = list(field_component_abaq_comp[compas_field_name].values())[0]
+                            scalar_value = value.data
+                            component_data_dict[part][key][compas_component_name] = scalar_value
 
                         # invariant values
                         if part not in invariants_data.keys():
