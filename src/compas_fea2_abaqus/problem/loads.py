@@ -3,7 +3,7 @@ from compas_fea2.problem import VectorLoad
 
 # from compas_fea2.units import no_units
 
-# from typing import Iterable
+from typing import Iterable
 
 dofs = ["x", "y", "z", "xx", "yy", "zz"]
 
@@ -72,11 +72,12 @@ class AbaqusVectorLoad(VectorLoad):
     def vectorload_types(self):
         return {"CLoad": "Concentrated Force"}
 
-    def jobdata(self, nodes, type):
-        data_section = [
-            f"** Name: {self.name} Type: {self.vectorload_types[type]}",
-            f"*{type}{self._modify}{self._follow}",
-        ]
+    def jobdata(self, nodes):
+        # data_section = [
+        #     f"** Name: {self.name} Type: {self.vectorload_types[type]}",
+        #     f"*{type}{self._modify}{self._follow}",
+        # ]
+        data_section=[]
         if not isinstance(nodes, Iterable):
             nodes = [nodes]
         for node in nodes:

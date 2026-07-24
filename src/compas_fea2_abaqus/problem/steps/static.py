@@ -1,5 +1,6 @@
 from compas_fea2.problem.steps import StaticStep
 from compas_fea2.problem.steps import StaticRiksStep
+from compas_fea2.problem.fields import GravityLoadField, ForceField
 
 from compas_fea2.units import no_units
 
@@ -86,12 +87,8 @@ class AbaqusStaticStep(StaticStep):
 **
 ** - Loads
 **   -----
-{
-            "\n".join(
-                [force_field.jobdata for force_field in self.effective_fields]
-                if self.effective_fields
-                else ["**"]
-            )
+{self._generate_load_section()
+            
         }
 **
 ** - Predefined Fields
@@ -194,6 +191,34 @@ class AbaqusStaticStep(StaticStep):
     #     else:
     #         return "**"
 
+    @no_units
+    def _generate_load_section(self):
+        if self._fields:
+            gravity_parts = [
+                force_field.jobdata
+                for force_field in self.effective_fields
+                if isinstance(force_field, GravityLoadField)
+            ]
+
+            force_fields = [
+                field for field in self.effective_fields
+                if isinstance(field, ForceField)
+            ]
+
+            if len(force_fields) > 0:
+                force_parts = (
+                    [
+                        "** Name: {} Type: Concentrated Force".format(self.name),
+                        "*Cload, {}".format('OP=MOD')
+                    ]
+                    + [load.jobdata(node) for node, load in self.effective_fields.node_loads_all_fields.items()]
+                )
+            else:
+                force_parts = ["**"]
+
+            return "\n".join(gravity_parts + force_parts)
+        else:
+            return "**"
     def _generate_prescribed_field_section(self):
         """
 

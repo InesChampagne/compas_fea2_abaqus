@@ -161,6 +161,7 @@ class AbaqusProblem(Problem):
         overwrite=True,
         user_mat=None,
         fields=None,
+        extract_model=False,
         *args,
         **kwargs,
     ):
@@ -203,13 +204,13 @@ class AbaqusProblem(Problem):
             *args,
             **kwargs,
         )
-        return self.extract_results(fields=fields)
+        return self.extract_results(fields=fields, extract_model = extract_model)
 
     # ==========================================================================
     # Extract results
     # ==========================================================================
     @timer(message="Data extracted from Abaqus .odb file in")
-    def extract_results(self, database_path=None, database_name=None, fields=None, **kwargs):
+    def extract_results(self, database_path=None, database_name=None, fields=None, extract_model=False, **kwargs):
         """Extract data from the Abaqus .odb file and store into a SQLite database.
 
         Parameters
@@ -252,6 +253,7 @@ class AbaqusProblem(Problem):
             field_input,
             database_path,
             database_name,
+            str(extract_model)
         ]
         for line in launch_process(cmd_args=args, cwd=database_path, verbose=True):
             print(line)

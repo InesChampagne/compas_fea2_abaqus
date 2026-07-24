@@ -203,7 +203,7 @@ def insert_field_results(conn, field, components_data, invariants_data, step, pa
     return _insert_entry(conn, sql)
 
 
-def extract_odb_data(database_path, database_name, field):
+def extract_odb_data(database_path, database_name, field, extract_model):
     """Extracts data from the .odb file for the requested steps and fields.
 
     Parameters
@@ -254,6 +254,80 @@ def extract_odb_data(database_path, database_name, field):
 
     with create_connection(database) as conn:
         create_field_description_table(conn)
+        if extract_model :
+            insert_field_description(
+                conn,
+                'nodes',
+                "",
+                "x y z",
+                "",
+            )
+            create_field_table(
+                conn,
+                'nodes',
+                ['x', 'y', 'z'],
+                [],
+            )
+
+            for instance_name, instance in odb.rootAssembly.instances.items():
+                nodes = instance.nodes
+                for node in nodes :
+                    key = node.label
+                    coord = node.coordinates
+                    part_name = instance.name.split('-')[0]
+                    key_type = 'NODE'
+                    position= ''
+                    step_name = ''
+
+                    insert_field_results(
+                                conn,
+                                'nodes',
+                                list(coord),
+                                [],
+                                step_name,
+                                part_name,
+                                key_type,
+                                position,
+                                key,
+                            )
+            #ELEMENTS
+            insert_field_description(
+                conn,
+                'elements',
+                "",
+                "Element nodes",
+                "",
+            )
+            nb_node_per_element = list(list(odb.rootAssembly.instances.values())[0].elements)[0].connectivity
+            create_field_table(
+                conn,
+                'elements',
+                ['Node'+str(i) for i in range(len(nb_node_per_element))],
+                [],
+            )
+
+            for instance_name, instance in odb.rootAssembly.instances.items():
+                elements = instance.elements
+                for element in elements :
+                    key = element.label
+                    coord = list(element.connectivity)
+                    part_name = instance.name.split('-')[0]
+                    key_type = element.type
+                    position= ''
+                    step_name = ''
+
+                    insert_field_results(
+                                conn,
+                                'elements',
+                                coord,
+                                [],
+                                step_name,
+                                part_name,
+                                key_type,
+                                position,
+                                key,
+                            )
+
         for step_name, step in steps.items():
             frame = step.frames[-1]  # TODO maybe loop through the frames
             default_fields = frame.fieldOutputs
@@ -360,11 +434,12 @@ def extract_odb_data(database_path, database_name, field):
 # NOTE: must be compatible with python 2+.
 if __name__ == "__main__":
     # NOTE: the arguments are in the order they are passed
-    database_path = sys.argv[-2]
-    database_name = sys.argv[-1]
-    if len(sys.argv) > 3:
-        field_input = sys.argv[-3]
+    database_path = sys.argv[-3]
+    database_name = sys.argv[-2]
+    extract_model = sys.argv[-1]
+    if len(sys.argv) > 4:
+        field_input = sys.argv[-4]
     else:
         field_input = None
 
-    extract_odb_data(database_path=database_path, database_name=database_name, field=field_input)
+    extract_odb_data(database_path=database_path, database_name=database_name, field=field_input, extract_model=extract_model)
